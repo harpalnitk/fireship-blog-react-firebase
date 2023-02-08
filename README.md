@@ -1,38 +1,29 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+> npx create-react-app fireship-blog-react-firebase
+do not select eslint, typescript, src folder and app folder
 
-## Getting Started
+## CSS
+1. globals.css is the file where u can define global styles applicable to entire app
+2. create css modules for component specific css and then import them into the js files
+3. during build time imported css classes are given random names so we dont have to worry about name collissions
 
-First, run the development server:
+## PAGES directory
+defines the routing of the application
+# root url maps to index.js file in the pages folder
+each page file will have one default export
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+# _app.js file special file of next serves as entry point for any page in application.it's a wrapper that surronds any other page
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+we may use it to add UI components which are availbale on every page like Navbar,Footer OR
+use it to manage authentication state in the front end
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+## we will add two new folders
+1. components: for reusable components
+2. lib: for reusable libraries
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+## add typescript
+create tsconfig.json file in root folder
+next will automatically install all dependencies and create next-env.d.ts file. this file helps IDE the corresponding types
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+rename component files to .tsx and regular js files to  .ts
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
