@@ -26,4 +26,16 @@ next will automatically install all dependencies and create next-env.d.ts file. 
 
 rename component files to .tsx and regular js files to  .ts
 
+## Install firebase
+>npm i firebase@8.2.1 react-firebase-hooks@2.2.0 --force
+React-firebase-hooks
+ connector between react and firebase
 
+ # reactfire is official library of react team and uses suspends and can be bit complex
+
+
+ ### Install firebase-ttols globally
+
+ >npm install firebase-tools -g
+
+ ### Install React Developer Tools in chrome
