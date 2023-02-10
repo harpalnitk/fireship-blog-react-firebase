@@ -42,3 +42,43 @@ React-firebase-hooks
 
 
  ## react-hot-toast package for custom-toast messages
+
+ ### SSR in next
+ if page is static and does not have blocking data
+ next will automatically generate it for SSR
+
+ if pages depend on external data sources; next has two options
+ 1. SSR
+ export async function getServerSideProps(){
+    //Fetch Data here
+
+    return {
+        props: {data}
+    }
+ }
+
+ Thus, fresh data on every request which prevents caching and slower performance for the user
+
+ 2. SSG: Static Generation
+ export async function getStaticProps(){
+    //Fetch Data here
+
+    return {
+        props: {data}
+    }
+ }
+
+ it tells next to fetch data at build time and is good for caching
+ but problem is data can be stale; if data changes we need to re-deploy the 
+ page or the entire site
+
+ 3. ISR: Incremental Static Regeneration
+
+ export async function getStaticProps(){
+    //Fetch Data here
+
+    return {
+        props: {data},
+        revalidate: 100
+    }
+ }
