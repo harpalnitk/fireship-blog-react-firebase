@@ -1,10 +1,13 @@
 import Link from 'next/link';
+import { useContext } from 'react';
+import { UserContext } from '../lib/context';
 
 //Top Navbar
 
 export default function Navbar(){
-    const user = null;
-    const username = null;
+    //any component that uses these values will re-render
+    //if user or username changes
+    const { user, username } = useContext(UserContext);
 
 
     return(
