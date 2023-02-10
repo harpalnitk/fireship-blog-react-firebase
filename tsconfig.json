@@ -22,7 +22,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-, "components/Loader.js"  ],
+, "components/Loader.js", "lib/firebase.js"  ],
   "exclude": [
     "node_modules"
   ]

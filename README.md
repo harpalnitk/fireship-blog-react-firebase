@@ -39,3 +39,6 @@ React-firebase-hooks
  >npm install firebase-tools -g
 
  ### Install React Developer Tools in chrome
+
+
+ ## react-hot-toast package for custom-toast messages

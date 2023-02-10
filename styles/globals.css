@@ -7,8 +7,8 @@
   --color-red: #df3b3b;
   --color-green: #3bdf72;
   --color-gray: #b5bdc4;
-  --loader-width: 8px;
-  --loader-size: 100px;
+  --loader-size: 50px;
+  --loader-width: calc((var(--loader-size) / 50) * 4);
 }
 html,
 body {
