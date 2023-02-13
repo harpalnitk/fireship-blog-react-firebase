@@ -1,6 +1,6 @@
 import UserProfile from '../../components/UserProfile';
 import PostFeed from '../../components/PostFeed';
-
+import Metatags from '../../components/Metatags';
 import { getUserWithUsername, postToJSON } from '../../lib/firebase';
 // static routes have poriority over dynamic routes 
 
@@ -13,7 +13,16 @@ export async function getServerSideProps({query}){
 
     const {username} = query;
     const userDoc = await getUserWithUsername(username);
-
+    // if username does not exists on server
+ // If no user, short circuit to 404 page
+ if (!userDoc) {
+    return {
+        //this tells next to render 404 page
+        //next has default 404 page but it can be customized
+        //be creating 404.js file in route of pages directory
+      notFound: true,
+    };
+  }
     //JSON serializable data
     let user = null;
     let posts = null;
@@ -39,6 +48,7 @@ if(userDoc){
 export default function UserProfilePage({user,posts}){
     return(
         <main>
+            <Metatags title={user.username} description={`${user.username}'s public profile`} />
            <UserProfile user={user}/>
            <PostFeed posts={posts}/>
         </main>
