@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+     // we don't have root collection of post but still we need 
+     // this rule as we are running collection group query
+     match /posts/{postId}{
+     allow read;
+     }
+     
+     match /users/{userId}{
+     allow read; //anybody can read user document
+     allow create: if isValidUser(userId);
+     }
+     
+    match /usernames/{username}{
+     allow read; //anybody can read username from usernames collection
+     allow create: if isValidUsername(username);
+     }
+     
+     match /users/{userId}/posts/{postId}{
+     allow read;
+     allow create: if canCreatePost(userId);
+     allow update: if canUpdatePost(userId) || canIncrementHearts(userId,postId);
+     allow delete: if request.auth.uid == userId;
+     }
+     
+     match /users/{userId}/posts/{postId}/hearts/{heartId}{
+     allow read;
+     allow write: if request.auth.uid == heartId;
+     }
+     
+     //users
+     function isValidUser(userId){
+     // a user is considered owner of the document
+     //if request.auth.uid equals userId of the path
+     let isOwner = request.auth.uid == userId;
+     let username = request.resource.data.username;
+     // in our app logic in order to create a user document we
+     //also need to create a username document with batch write
+     
+     //firestore rules have a function called existAfter 
+     //that allows you to grab a document from the database
+     //as if it were already created in the batch write
+     // this condition makes sure that username document
+     //is being created at the same time
+     let createValidUsername = existsAfter(/databases/$(database)/documents/usernames/$(username));
+     return isOwner && createValidUsername;
+     }
+     
+     function isValidUsername(username){
+      let isOwner = request.auth.uid == request.resource.data.uid;
+      let isValidLength = username.size() >=3 && username.size() <= 15;
+      //getAfter allows us to retrieve the doc
+      //after batch write has practically been finished
+      // below line make sure that username equals the
+      //username i.e. is set on the user document so that mismatch
+      //does not occur
+      let isValidUserDoc = getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.username == username;
+       
+       return isOwner && isValidLength && isValidUserDoc;
+     }
+     
+     function canCreatePost(userId){
+     let isOwner = request.auth.uid ==userId;
+     let isNow = request.time == request.resource.data.createdAt;
+     let isValidContent = request.resource.data.content.size() < 20000 && request.resource.data.heartCount == 0;
+     let username = get(/databases/$(databse)/documents/users/$(request.auth.uid)).data.username;
+     let usernameMatches = username == request.resource.data.username;
+     
+     return isOwner && isNow && isValidContent && usernameMatches;
+     }
+     
+     function canUpdatePost(userId){
+     let isOwner = request.auth.uid ==userId;
+      let isNow = request.time == request.resource.data.updatedAt;
+      let isValidContent = request.resource.data.content.size() < 20000;
+      //difference between request.resource.data and actual data in the databse
+      let doesNotUpdateForbidden = !request.resource.data.diff(resource.data).affectedKeys().hasAny(['uid','username','heartCount']);
+      return isOwner && isNow && isValidContent && doesNotUpdateForbidden;
+     }
+    
+    //we are allowing any user to update other users post document
+    function canIncrementHearts(userId, postId) {
+		    let hasValidFields = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['heartCount']);
+        let currentUser = request.auth.uid;
+		
+        //special function which give database state before and after batch writes
+        let heartDocExistsAfter = existsAfter(/databases/$(database)/documents/users/$(userId)/posts/$(postId)/hearts/$(currentUser));
+        let heartDocExists = exists(/databases/$(database)/documents/users/$(userId)/posts/$(postId)/hearts/$(currentUser));
+				
+        let heartDocAdded= !heartDocExists && heartDocExistsAfter;
+        let heartDocRemoved = heartDocExists && !heartDocExistsAfter;
+
+        
+        let countChange = request.resource.data.heartCount - resource.data.heartCount;
+        let validChange = countChange == 1 || countChange == -1;
+
+        return hasValidFields && validChange && ( countChange == 1 ? heartDocAdded : heartDocRemoved );
+      }
+    }
+  }
+}

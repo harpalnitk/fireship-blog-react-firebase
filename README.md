@@ -82,3 +82,10 @@ React-firebase-hooks
         revalidate: 100
     }
  }
+ \
+
+ ### DEPLOYMENT
+ vercel is company behind next.js
+
+ therefore if we are usin SSR ISR, we should deploy app on vercel
+ 
