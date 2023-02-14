@@ -33,8 +33,11 @@ function PostManager() {
   
     const router = useRouter();
     const { slug } = router.query;
+
+    //without typecasting: gives type error on vercel
+    const slugg: string = `${slug}`;
   
-    const postRef = firestore.collection('users').doc(auth.currentUser.uid).collection('posts').doc(slug);
+    const postRef = firestore.collection('users').doc(auth.currentUser.uid).collection('posts').doc(slugg);
     // to listen to post in real time
    // const [post] = useDocumentData(postRef);
    //but we don't need real time updates in this case
