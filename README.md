@@ -88,4 +88,7 @@ React-firebase-hooks
  vercel is company behind next.js
 
  therefore if we are usin SSR ISR, we should deploy app on vercel
- 
+
+ also add vercel domain to firestore hosting
+
+google-site-verification=YLiy2gyWzhLLlEF-RT93KPXom7pTwn5bTTerK4amkh4
