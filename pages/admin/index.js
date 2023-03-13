@@ -77,8 +77,12 @@ function PostList() {
         updatedAt: serverTimestamp(),
         heartCount: 0,
       };
-  
-      await ref.set(data);
+  try{
+    await ref.set(data);
+  }catch(e){
+    console.log(e);
+  }
+      
   
       toast.success('Post created!');
   
