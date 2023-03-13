@@ -1,7 +1,9 @@
-import { auth,firestore, googleAuthProvider } from '../lib/firebase';
+import { auth,firestore} from '../lib/firebase';
 import { useContext, useState, useEffect, useCallback} from 'react';
 import { UserContext } from '../lib/context';
 import Metatags from '../components/Metatags';
+
+import { GoogleAuthProvider,signInWithPopup,signOut,signInAnonymously  } from 'firebase/auth';
 
 //custom library installed by us
 import debounce from 'lodash.debounce';
@@ -29,8 +31,12 @@ export default function EnterPage({}) {
 function SignInButton() {
     //try catch should be used here
     const signInWithGoogle = async () => {
-        await auth.signInWithPopup(googleAuthProvider);
+      const provider = new GoogleAuthProvider();
+        //await auth.signInWithPopup(googleAuthProvider);
+      const result = await signInWithPopup(auth, provider);
       };
+      
+
 
 
       return (
@@ -38,7 +44,7 @@ function SignInButton() {
           <button className="btn-google" onClick={signInWithGoogle}>
             <img src={'/google.png'} width="30px" /> Sign in with Google
           </button>
-          <button onClick={() => auth.signInAnonymously()}>
+          <button onClick={async () => await signInAnonymously(auth)}>
             Sign in Anonymously
           </button>
         </>
@@ -46,8 +52,11 @@ function SignInButton() {
 }
 
 function SignOutButton() {
+  const signOutUser = async () => {
+    const result = await signOut(auth);
+ }
     //removes jsonwebtoken from the browser
-    return <button onClick={() => auth.signOut()}>Sign Out</button>;
+    return <button onClick={signOutUser}>Sign Out</button>;
 }
 
 function UsernameForm() {
