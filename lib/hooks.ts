@@ -10,8 +10,8 @@ export  function  useUserData() {
   const [user] = useAuthState(auth);
   const [username, setUsername] = useState(null);
 
-   console.log('user in hook', user);
-   console.log('username in hook', username);
+  //  console.log('user in hook', user);
+  //  console.log('username in hook', username);
 
   //const [value,loading,error] = useDocument(doc(firestore,'users', user?.uid));
   //useEffect hook to listen to any changes in the user Object
@@ -31,8 +31,9 @@ export  function  useUserData() {
         const userRef = doc(firestore,'users', user?.uid);
         const userSnap = await getDoc(userRef);
         if(userSnap.exists){
+          // console.log('userSnap.data()?.username',userSnap.data()?.username)
 
-          setUsername(JSON.stringify(userSnap.data()?.username))
+          setUsername(userSnap.data()?.username)
         }else{
           setUsername(null);
         }

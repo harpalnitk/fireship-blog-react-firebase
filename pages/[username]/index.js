@@ -2,6 +2,16 @@ import UserProfile from '../../components/UserProfile';
 import PostFeed from '../../components/PostFeed';
 import Metatags from '../../components/Metatags';
 import { getUserWithUsername, postToJSON } from '../../lib/firebase';
+import { firestore } from '../../lib/firebase';
+import { 
+    collection,
+    query,
+    orderBy,
+    limit,
+    where,
+    getDocs,
+    Timestamp,
+    startAfter  } from "firebase/firestore";
 // static routes have poriority over dynamic routes 
 
 // SSR is good strategy for this page
@@ -9,9 +19,9 @@ import { getUserWithUsername, postToJSON } from '../../lib/firebase';
 //fresh for each new request
 
 //async function for SSR
-export async function getServerSideProps({query}){
+export async function getServerSideProps({query: queryParam}){
 
-    const {username} = query;
+    const {username} = queryParam;
     const userDoc = await getUserWithUsername(username);
     // if username does not exists on server
  // If no user, short circuit to 404 page
@@ -28,14 +38,24 @@ export async function getServerSideProps({query}){
     let posts = null;
 if(userDoc){
     user = userDoc.data();
-    const postsQuery = userDoc.ref
-    .collection('posts')
-    .where('published','==',true)
-    .orderBy('createdAt', 'desc')
-    .limit(5);
+
+    console.log('user', user);
+    // const postsQuery = userDoc.ref
+    // .collection('posts')
+    // .where('published','==',true)
+    // .orderBy('createdAt', 'desc')
+    // .limit(5);
+
+    const postsRef =  collection(firestore,'posts');
+    const q =  query(postsRef, where('published', '==', true), orderBy("createdAt",'desc'), limit(5))
+    const postsSnapshot = await getDocs(q);
+
+
 //postToJSON needed because post has firestore timestamp 
 //and we need to convert it to number
-    posts = (await postsQuery.get()).docs.map(postToJSON)
+    // posts = (await postsQuery.get()).docs.map(postToJSON)
+    posts = postsSnapshot.docs.map(postToJSON)
+    console.log('posts',posts);
 }
 
     return{
