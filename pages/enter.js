@@ -12,7 +12,8 @@ export default function EnterPage({}) {
     //any component that uses these values will re-render
     //if user or username changes
     const { user, username } = useContext(UserContext);
-
+    console.log('user',user);
+    console.log('username',username);
 
   // 3(Three) States in which user auth can be
 

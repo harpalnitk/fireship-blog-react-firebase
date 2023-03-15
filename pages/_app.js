@@ -18,6 +18,7 @@ import {useUserData} from '../lib/hooks';
 
 export default function App({ Component, pageProps }) {
 const userData= useUserData();
+console.log('userData in app', userData)
 
 
   return (
