@@ -38,15 +38,16 @@ export async function getServerSideProps({query: queryParam}){
     let posts = null;
 if(userDoc){
     user = userDoc.data();
+    
 
-    console.log('user', user);
+   //console.log('user', userDoc.id);
     // const postsQuery = userDoc.ref
     // .collection('posts')
     // .where('published','==',true)
     // .orderBy('createdAt', 'desc')
     // .limit(5);
 
-    const postsRef =  collection(firestore,'posts');
+    const postsRef =  collection(firestore,'users',userDoc.id,'posts');
     const q =  query(postsRef, where('published', '==', true), orderBy("createdAt",'desc'), limit(5))
     const postsSnapshot = await getDocs(q);
 
@@ -55,7 +56,7 @@ if(userDoc){
 //and we need to convert it to number
     // posts = (await postsQuery.get()).docs.map(postToJSON)
     posts = postsSnapshot.docs.map(postToJSON)
-    console.log('posts',posts);
+    //console.log('posts',posts);
 }
 
     return{
