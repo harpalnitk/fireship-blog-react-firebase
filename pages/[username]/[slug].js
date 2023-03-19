@@ -20,14 +20,14 @@
 import styles from '../../styles/Post.module.css';
 import { firestore, getUserWithUsername, postToJSON } from '../../lib/firebase';
 import Link from 'next/link';
-//import { useDocumentData } from 'react-firebase-hooks/firestore';
+import { useDocumentData } from 'react-firebase-hooks/firestore';
 
 import PostContent from '../../components/PostContent';
 import Metatags from '../../components/Metatags';
 import AuthCheck from '../../components/AuthCheck';
 import HeartButton from '../../components/HeartButton';
-import { useState } from 'react';
-
+import { useContext } from 'react';
+import { UserContext } from '../../lib/context';
 import { 
   collectionGroup,
   getDocs,
@@ -36,7 +36,10 @@ import {
   } from "firebase/firestore";
 
 //Runs on SERVER for ISR
+//always run on server and never on client
+//this code is removed in the client bundle
 export async function getStaticProps({ params }) {
+ // console.log('Inside getStaticProps');
     const { username, slug } = params;
     const userDoc = await getUserWithUsername(username);
   
@@ -45,9 +48,9 @@ export async function getStaticProps({ params }) {
   
     if (userDoc) {
       //const postRef = userDoc.ref.collection('posts').doc(slug);
-      const postRef = doc(firestore,'users', userDoc.id,'posts',slug);
+      //const postRef = doc(firestore,'users', userDoc.id,'posts',slug);
       //! above is working
-      //const postRef = doc(userDoc.ref,'posts',slug);
+      const postRef = doc(userDoc.ref,'posts',slug);
      // post = postToJSON(await postRef.get());
         post = postToJSON(await getDoc(postRef));
       //will help in hydration to real time data
@@ -56,10 +59,10 @@ export async function getStaticProps({ params }) {
     }
   
     return {
-      props: { post, path },
+      props: { post, path }, //postRef can't be sent here because it is not JSON serializable
       revalidate: 5000, //revalidate tells next to regenerate this 
       //page on server 
-      //when new request comes in; but do son in certain time 
+      //when new request comes in; but do so in certain time 
       //interval after every 5000s
     };
   }
@@ -67,6 +70,7 @@ export async function getStaticProps({ params }) {
 
   // To Tell next which paths(actual pages) to render in advance
   export async function getStaticPaths() {
+  //  console.log('Inside getStaticPaths');
     // Improve my using Admin SDK to select empty docs
     //more efficiant way is to use admin SDK
     //const snapshot = await firestore.collectionGroup('posts').get();
@@ -101,8 +105,9 @@ export async function getStaticProps({ params }) {
   
 
 export default  function Post(props) {
+ // console.log('Rendering post component');
 
-  const [post,setPost] = useState(props.post);
+ // const [post,setPost] = useState(props.post);
 //console.log('props.post',props.post)
 //console.log('props.path',props.path)
 
@@ -113,31 +118,42 @@ export default  function Post(props) {
 //Get postRef from props.path generated during ISR
 
 // const postRef = firestore.doc(props.path);
- const postRef = doc(firestore,props.path);
+const postRef = doc(firestore,props.path);
 //console.log('postRef',postRef);
 
 //use react hook to get a feed of data  in realTime 
 //but if real time data has not been preloaded it will fallback to rendered 
 //content on server
 
-//const [realtimePost] = useDocumentData(postRef);
-const getPost = async () => {
-  const realtimePostSnap = await getDoc(postRef);
-  const realtimePost = realtimePostSnap.data(); 
+const [realtimePost] = useDocumentData(postRef);
+
+// const getPost = async () => {
   
-  console.log('realtimePost', realtimePost);
+//   // console.log('Inside getPost');
+//    const realtimePostSnap = await getDoc(postRef);
+//   const realtimePost = postToJSON(realtimePostSnap); 
+   
+//    //console.log('realtimePost', realtimePost);
+ 
+ 
+//  //but if real time data has not been preloaded it will fallback to rendered 
+//  //content on server
+//  //setPost(realtimePost)
+//  setPost(realtimePost) ;
+ 
+//  }
+
+// useEffect(()=>{
+//   console.log('Inside use Effect');
+//   getPost();
+// },[]);
+
+//console.log('post', post);
+const post = realtimePost || props.post;
+
+const { user: currentUser } = useContext(UserContext);
 
 
-//but if real time data has not been preloaded it will fallback to rendered 
-//content on server
-//setPost(realtimePost)
-return  realtimePost ;
-
-}
-
-getPost();
-
-console.log('post', post);
 
 return(
         <main className={styles.container}>
@@ -157,10 +173,14 @@ return(
               <button>💗 Sign Up</button>
             </Link>
           }>
-          {/* <HeartButton postRef={postRef}/> */}
+          <HeartButton postRef={postRef}/>
         </AuthCheck>
 
-
+        {currentUser?.uid === post.uid && (
+          <Link href={`/admin/${post.slug}`}>
+            <button className="btn-blue">Edit Post</button>
+          </Link>
+        )}
 
  
       </aside>

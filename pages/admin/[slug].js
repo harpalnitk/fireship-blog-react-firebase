@@ -6,7 +6,7 @@ import Metatags from '../../components/Metatags';
 
 import styles from '../../styles/Admin.module.css';
 import AuthCheck from '../../components/AuthCheck';
-import { firestore, auth, serverTimestamp } from '../../lib/firebase';
+import { firestore, auth } from '../../lib/firebase';
 import ImageUploader from '../../components/ImageUploader';
 
 import { useState } from 'react';
@@ -17,6 +17,14 @@ import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { 
+  collection,
+  query,
+  orderBy,
+  serverTimestamp,
+  doc,
+  setDoc
+} from "firebase/firestore";
 
 export default function AdminPostsEdit({}){
     return (
@@ -35,7 +43,8 @@ function PostManager() {
     const { slug } = router.query;
 
   
-    const postRef = firestore.collection('users').doc(auth.currentUser.uid).collection('posts').doc(slug);
+    // const postRef = firestore.collection('users').doc(auth.currentUser.uid).collection('posts').doc(slug);
+    const postRef = doc(firestore,'users',auth.currentUser.uid,'posts',slug);
     // to listen to post in real time
    // const [post] = useDocumentData(postRef);
    //but we don't need real time updates in this case

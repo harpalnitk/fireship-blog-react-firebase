@@ -10,8 +10,7 @@ import {
     limit,
     where,
     getDocs,
-    Timestamp,
-    startAfter  } from "firebase/firestore";
+ } from "firebase/firestore";
 // static routes have poriority over dynamic routes 
 
 // SSR is good strategy for this page

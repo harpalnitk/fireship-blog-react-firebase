@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown';
 
 // UI component for main post content
 export default function PostContent({ post }) {
+  // console.log('Rendering Post Content component');
 
     // if date is in number format convert to javascript date
     // and if in friestore timestamp format then convert directly to date
