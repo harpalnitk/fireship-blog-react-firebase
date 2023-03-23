@@ -18,12 +18,10 @@ import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { 
-  collection,
-  query,
-  orderBy,
+  deleteDoc,
   serverTimestamp,
   doc,
-  setDoc
+  updateDoc
 } from "firebase/firestore";
 
 export default function AdminPostsEdit({}){
@@ -88,7 +86,7 @@ function PostManager() {
         //no need to prevent default beahavior
         //as it is already handled by handleSubmit function of
         //form hook
-      await postRef.update({
+      await updateDoc(postRef, {
         content,
         published,
         updatedAt: serverTimestamp(),
@@ -143,7 +141,7 @@ function PostManager() {
     const deletePost = async () => {
       const doIt = confirm('are you sure!');
       if (doIt) {
-        await postRef.delete();
+        await deleteDoc(postRef);
         router.push('/admin');
         toast('post annihilated ', { icon: '🗑️' });
       }

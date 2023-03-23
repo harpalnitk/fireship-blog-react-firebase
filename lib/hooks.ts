@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, firestore } from '../lib/firebase';
-import { doc, getDoc} from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 //import { useDocument } from 'react-firebase-hooks/firestore';
 
 //Custom hook to read auth reacord and user profile doc
@@ -10,8 +10,8 @@ export  function  useUserData() {
   const [user] = useAuthState(auth);
   const [username, setUsername] = useState(null);
 
-  //  console.log('user in hook', user);
-  //  console.log('username in hook', username);
+  console.log('user in hook', user);
+  console.log('username in hook', username);
 
   //const [value,loading,error] = useDocument(doc(firestore,'users', user?.uid));
   //useEffect hook to listen to any changes in the user Object
@@ -27,23 +27,17 @@ export  function  useUserData() {
       // unsubscribe = ref.onSnapshot((doc) => {
       //   setUsername(doc.data()?.username);
       // });
-      (async () => {
+      
         const userRef = doc(firestore,'users', user?.uid);
-        const userSnap = await getDoc(userRef);
-        if(userSnap.exists){
-          // console.log('userSnap.data()?.username',userSnap.data()?.username)
-
-          setUsername(userSnap.data()?.username)
-        }else{
-          setUsername(null);
-        }
-       
-      })();
-
-
-    } else {
-      setUsername(null);
-    }
+        //For Real Time Updates
+        unsubscribe = onSnapshot(userRef,(doc) => {
+          setUsername(doc.data()?.username);
+        });
+      } else {
+        setUsername(null);
+      }
+  
+      return unsubscribe;
     //tells recat to unsubscribe when documen is no longer needed
    // return unsubscribe;
   }, [user]);

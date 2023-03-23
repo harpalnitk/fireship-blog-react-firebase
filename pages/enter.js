@@ -4,6 +4,7 @@ import { UserContext } from '../lib/context';
 import Metatags from '../components/Metatags';
 
 import { GoogleAuthProvider,signInWithPopup,signOut,signInAnonymously  } from 'firebase/auth';
+import {doc,getDoc, writeBatch} from 'firebase/firestore';
 
 //custom library installed by us
 import debounce from 'lodash.debounce';
@@ -81,16 +82,21 @@ const onSubmit = async (e) => {
   e.preventDefault();
 
   // Create refs for both documents
-  const userDoc = firestore.doc(`users/${user.uid}`);
-  const usernameDoc = firestore.doc(`usernames/${formValue}`);
-
+  const userDoc = doc(firestore,`users/${user.uid}`);
+  const usernameDoc = doc(firestore,`usernames/${formValue}`);
+ 
   // Commit both docs together as a batch write.
   //fail or succeed together
-  const batch = firestore.batch();
-  batch.set(userDoc, { username: formValue, photoURL: user.photoURL, displayName: user.displayName });
-  batch.set(usernameDoc, { uid: user.uid });
-
-  await batch.commit();
+  //const batch = firestore.batch();
+try {
+    const batch = writeBatch(firestore);
+    batch.set(userDoc, { username: formValue, photoURL: user.photoURL, displayName: user.displayName });
+    batch.set(usernameDoc, { uid: user.uid });
+  
+    await batch.commit();
+} catch (error) {
+  console.log(error)
+}
 };
 
 
@@ -131,9 +137,10 @@ const checkUsername = useCallback(
   //will stop the execution of inner function for 500ms delay
   debounce(async (username) => {
     if (username.length >= 3) {
-      const ref = firestore.doc(`usernames/${username}`);
-      const { exists } = await ref.get();
-      console.log('Firestore read executed!');
+      const ref = doc(firestore,`usernames/${username}`);
+      const refSnapshot = await getDoc(ref);
+      const exists = refSnapshot.exists();
+      console.log('Firestore read executed!', exists);
       setIsValid(!exists);
       setLoading(false);
     }

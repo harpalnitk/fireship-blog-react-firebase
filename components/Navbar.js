@@ -1,14 +1,21 @@
 import Link from 'next/link';
 import { useContext } from 'react';
+import { useRouter } from 'next/router';
 import { UserContext } from '../lib/context';
-
+import { auth } from '../lib/firebase';
+import { signOut } from 'firebase/auth';
 //Top Navbar
 
 export default function Navbar(){
     //any component that uses these values will re-render
     //if user or username changes
     const { user, username } = useContext(UserContext);
+    const router = useRouter();
 
+    const signOutUser =  async () => {
+        const result = await signOut(auth);
+        router.reload();
+      }
 
     return(
         <nav className='navbar'>
@@ -22,6 +29,9 @@ export default function Navbar(){
             {/* user is signed in and has username  */}
             {username && (
                 <>
+            <li className="push-left">
+              <button onClick={signOutUser}>Sign Out</button>
+            </li>
                  <li className='push-left'>
                  <Link href='/admin'>
                     <button className='btn-blue'>Write Posts</button>
@@ -29,7 +39,7 @@ export default function Navbar(){
                  </li>
                  <li>
                  <Link href={`/${username}`}>
-                    <img src={user?.photoURL}/>
+                    <img src={user?.photoURL || '/hacker.png'}/>
                  </Link>
                     </li>
 
